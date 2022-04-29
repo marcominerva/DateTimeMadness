@@ -9,6 +9,20 @@ public class DataContext : DbContext
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
     }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        var entries = ChangeTracker.Entries().ToList();
+        foreach (var entry in entries)
+        {
+            foreach (var property in entry.Properties.Where(p => p.IsModified))
+            {
+
+            }
+        }
+
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
 }
 
 public class Session

@@ -68,6 +68,26 @@ public class SessionsController : ControllerBase
         output.Position = 0;
         return File(output, MediaTypeNames.Application.Pdf, "Sessions.pdf");
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Save(Session session, [FromServices] DataContext dataContext)
+    {
+        var dbSession = session.Id != Guid.Empty ? await dataContext.Sessions.FindAsync(session.Id) : null;
+        if (dbSession is null)
+        {
+            dbSession = new DataAccessLayer.Session();
+            dataContext.Sessions.Add(dbSession);
+        }
+
+        dbSession.Name = session.Name;
+        dbSession.StartTime = session.StartTime;
+        //dbSession.ProposedDate = new DateTime(session.ProposedDate.Year, session.ProposedDate.Month, session.ProposedDate.Day, session.ProposedDate.Hour, session.ProposedDate.Minute, session.ProposedDate.Second); //session.ProposedDate;
+        dbSession.ProposedDate = session.ProposedDate;
+
+        await dataContext.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
 
 public record class Session(Guid Id, string Name, DateTime StartTime, DateTime ProposedDate);
